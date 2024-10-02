@@ -1,31 +1,118 @@
-import { Input } from "@/app/components/input/input";
+"use client";
 import Link from "next/link";
+import { useState, useTransition } from "react";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FaGithub } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { ZSchema } from "@/lib/zod";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { FormInvalid } from "@/components/form-invalid";
+import { login } from "./login-form";
 
 export default function LoginPage() {
+  const [error, setError] = useState<string | undefined>("");
+
+  const [isPending, startTransition] = useTransition();
+
+  const form = useForm<z.infer<typeof ZSchema>>({
+    resolver: zodResolver(ZSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof ZSchema>) => {
+    startTransition(() => {
+      login(values).then((data) => {
+        setError(data?.error);
+      });
+    });
+  };
+
   return (
-    <form className="flex justify-center h-screen items-center">
-      <div className="flex flex-col gap-10 min-w-72">
-        <Input onClick={() => {}} nameLabel="Email" id="Email" name="Email" />
+    <div className="flex justify-center h-screen items-center ">
+      <div className="h-[500px] w-96 bg-gray-100 border-2 rounded-xl p-6">
+        <p className="text-center font-medium text-2xl">Login Form</p>
 
-        <Input
-          onClick={() => {}}
-          nameLabel="Password"
-          id="Password"
-          name="Password"
-        />
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6 mb-6"
+          >
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="h-24">
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      placeholder="jhon@example.com"
+                      type="email"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="flex flex-col justify-center gap-3">
-          <Link href="/" className=" text-center">
-            Register now
-          </Link>
-          <button>Login up with Google</button>
-          <button>Login up with GitHub</button>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem className="h-24">
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isPending}
+                      {...field}
+                      placeholder="*****"
+                      type="password"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {error && <FormInvalid message={error} isInvalid />}
+
+            <Button disabled={isPending} type="submit" className="w-full">
+              Login
+            </Button>
+          </form>
+        </Form>
+
+        <div className="flex gap-3">
+          <Button className="w-full" variant="outline" size="lg">
+            <FcGoogle />
+          </Button>
+
+          <Button className="w-full" variant="outline" size="lg">
+            <FaGithub />
+          </Button>
         </div>
-
-        <button className="gap-4 inline-flex  items-center justify-center rounded-full border border-transparent outline-primary-300 outline font-500 outline-md outline-offset-[2px] btn-sm md:btn-md lg:btn-lg cursor-pointer">
-          Login
-        </button>
+        <div className="flex justify-center">
+          <Button variant="link" size="lg" asChild>
+            <Link href="/">Do not have an account?</Link>
+          </Button>
+        </div>
       </div>
-    </form>
+    </div>
   );
 }

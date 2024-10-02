@@ -1,22 +1,18 @@
-import { useEffect } from "react";
-import { useRouter } from "next/router";
+import { Button } from "@/components/ui/button";
+import { FcGoogle } from "react-icons/fc";
 
 export default function Dashboard() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Poți verifica dacă utilizatorul este autentificat aici
-    // Dacă nu este autentificat, redirectează-l la pagina de login
-    const userAuthenticated = false; // Schimbă logica după integrarea login-ului
-    if (!userAuthenticated) {
-      router.push("/login");
-    }
-  }, [router]);
-
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <p>Bine ai venit!</p>
+    <div className="flex justify-center h-screen items-center">
+      <div className="h-96 w-96">
+        <p className="text-center font-medium text-2xl">Login Form</p>
+
+        <form>
+          <Button variant="default" size="lg">
+            <FcGoogle />
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

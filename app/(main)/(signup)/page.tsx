@@ -1,86 +1,133 @@
 "use client";
-import { Input } from "@/app/components/input/input";
-import { signInSchema } from "@/app/lib/zod";
 import Link from "next/link";
-import { useFormState } from "react-dom";
+import { useState, useTransition } from "react";
 
-const handlerSignUp = async (state: any, formData: FormData) => {
-  const validatedFields = signInSchema.safeParse({
-    email: formData.get("email"),
-    password: formData.get("password"),
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FaGithub } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { ZRegisterSchema } from "@/lib/zod";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { FormInvalid } from "@/components/form-invalid";
+
+export default function LoginPage() {
+  const [error, setError] = useState<string | undefined>("");
+
+  const [isPending, startTransition] = useTransition();
+
+  const form = useForm<z.infer<typeof ZRegisterSchema>>({
+    resolver: zodResolver(ZRegisterSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
   });
 
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-    };
-  }
-
-  try {
-    const response = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(validatedFields),
-    });
-
-    if (response.ok) {
-      // setSuccess(true);
-      // setError(null);
-    } else {
-      // const errorData = await response.json();
-      // setError(errorData.error);
-      // setSuccess(false);
-    }
-  } catch (err) {
-    // setError("Something went wrong");
-    // setSuccess(false);
-  }
-};
-
-export default function Home() {
-  const [state, action] = useFormState(handlerSignUp, undefined);
+  const onSubmit = (values: z.infer<typeof ZRegisterSchema>) => {
+    startTransition(() => {});
+  };
 
   return (
-    <form className="flex justify-center h-screen items-center" action={action}>
-      <div className="flex flex-col gap-10 min-w-72">
-        <div className="h-10">
-          <Input
-            nameLabel="Email"
-            id="email"
-            name="email"
-            type="email"
-            required
-          />
-          {state?.errors?.email && (
-            <p className=" text-red-500">{state.errors.email}</p>
-          )}
+    <div className="flex justify-center h-screen items-center ">
+      <div className="h-[600px] w-96 bg-gray-100 border-2 rounded-xl p-6">
+        <p className="text-center font-medium text-2xl">Register Form</p>
+
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6 mb-6"
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="h-24">
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isPending}
+                      {...field}
+                      placeholder="Example"
+                      type="Name"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="h-24">
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      placeholder="jhon@example.com"
+                      type="email"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem className="h-24">
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isPending}
+                      {...field}
+                      placeholder="*****"
+                      type="password"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {error && <FormInvalid message={error} isInvalid />}
+
+            <Button disabled={isPending} type="submit" className="w-full">
+              Register
+            </Button>
+          </form>
+        </Form>
+
+        <div className="flex gap-3">
+          <Button className="w-full" variant="outline" size="lg">
+            <FcGoogle />
+          </Button>
+
+          <Button className="w-full" variant="outline" size="lg">
+            <FaGithub />
+          </Button>
         </div>
-
-        <div className="h-10">
-          <Input nameLabel="Password" id="Password" name="Password" required />
-
-          {state?.errors?.password && (
-            <p className=" text-red-500">{state.errors.password}</p>
-          )}
+        <div className="flex justify-center">
+          <Button variant="link" size="lg" asChild>
+            <Link href="/login">Do you have an account?</Link>
+          </Button>
         </div>
-
-        <div className="flex flex-col justify-center gap-3">
-          <Link href="/login" className="text-center">
-            Login with account
-          </Link>
-          {/* <button>Sign up with Google</button>
-          <button>Sign up with GitHub</button> */}
-        </div>
-
-        <button
-          type="submit"
-          className="gap-4 inline-flex  items-center justify-center rounded-full border border-transparent outline-primary-300 outline font-500 outline-md outline-offset-[2px] btn-sm md:btn-md lg:btn-lg cursor-pointer"
-        >
-          Register
-        </button>
       </div>
-    </form>
+    </div>
   );
 }
