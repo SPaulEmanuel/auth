@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { FormInvalid } from "@/components/form-invalid";
-import { login } from "./login-form";
+import { login } from "../../api/login-form";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | undefined>("");

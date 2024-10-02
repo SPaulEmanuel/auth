@@ -14,8 +14,8 @@ model User {
   email         String          @unique
   emailVerified DateTime?
   image         String?
+  password      String?
   accounts      Account[]
-  sessions      Session[]
  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -44,18 +44,7 @@ model Account {
   @@id([provider, providerAccountId])
   @@map("account")
 }
- 
-model Session {
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  @@map("session")
-}
  
 model VerificationToken {
   identifier String

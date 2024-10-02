@@ -19,9 +19,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { FormInvalid } from "@/components/form-invalid";
+import { register } from "../../api/register-form";
 
 export default function LoginPage() {
-  const [error, setError] = useState<string | undefined>("");
+  const [respondData, setRespondData] = useState<
+    { type: string; message: string } | undefined
+  >();
 
   const [isPending, startTransition] = useTransition();
 
@@ -35,7 +38,15 @@ export default function LoginPage() {
   });
 
   const onSubmit = (values: z.infer<typeof ZRegisterSchema>) => {
-    startTransition(() => {});
+    startTransition(() => {
+      register(values).then((data) => {
+        if (data.success) {
+          setRespondData({ type: "success", message: data.success });
+        } else if (data.error) {
+          setRespondData({ type: "error", message: data.error });
+        }
+      });
+    });
   };
 
   return (
@@ -105,7 +116,13 @@ export default function LoginPage() {
               )}
             />
 
-            {error && <FormInvalid message={error} isInvalid />}
+            {respondData?.type === "error" && respondData !== undefined && (
+              <FormInvalid message={respondData.message} isInvalid />
+            )}
+
+            {respondData?.type === "success" && respondData !== undefined && (
+              <FormInvalid message={respondData.message} isInvalid={false} />
+            )}
 
             <Button disabled={isPending} type="submit" className="w-full">
               Register
