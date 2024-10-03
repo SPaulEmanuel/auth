@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { FormInvalid } from "@/components/form-invalid";
 import { register } from "../../api/register-form";
+import { signIn } from "@/auth";
 
 export default function LoginPage() {
   const [respondData, setRespondData] = useState<
@@ -51,8 +52,8 @@ export default function LoginPage() {
 
   return (
     <div className="flex justify-center h-screen items-center ">
-      <div className="h-[600px] w-96 bg-gray-100 border-2 rounded-xl p-6">
-        <p className="text-center font-medium text-2xl">Register Form</p>
+      <div className="h-[650px] w-96 bg-gray-100 border-2 rounded-xl p-6">
+        <p className="text-center font-medium text-2xl mb-12">Register Form</p>
 
         <Form {...form}>
           <form
@@ -63,7 +64,7 @@ export default function LoginPage() {
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem className="h-24">
+                <FormItem className="h-20">
                   <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input
@@ -82,7 +83,7 @@ export default function LoginPage() {
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem className="h-24">
+                <FormItem className="h-20">
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
@@ -101,7 +102,7 @@ export default function LoginPage() {
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem className="h-24">
+                <FormItem className="h-20">
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input
@@ -115,14 +116,15 @@ export default function LoginPage() {
                 </FormItem>
               )}
             />
+            <div className="h-10">
+              {respondData?.type === "error" && respondData !== undefined && (
+                <FormInvalid message={respondData.message} isInvalid />
+              )}
 
-            {respondData?.type === "error" && respondData !== undefined && (
-              <FormInvalid message={respondData.message} isInvalid />
-            )}
-
-            {respondData?.type === "success" && respondData !== undefined && (
-              <FormInvalid message={respondData.message} isInvalid={false} />
-            )}
+              {respondData?.type === "success" && respondData !== undefined && (
+                <FormInvalid message={respondData.message} isInvalid={false} />
+              )}
+            </div>
 
             <Button disabled={isPending} type="submit" className="w-full">
               Register
@@ -135,7 +137,14 @@ export default function LoginPage() {
             <FcGoogle />
           </Button>
 
-          <Button className="w-full" variant="outline" size="lg">
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={async () => {
+              await signIn("github");
+            }}
+            size="lg"
+          >
             <FaGithub />
           </Button>
         </div>
